@@ -2,7 +2,7 @@ import Expense from '../Models/Expenses.js';
 
 const addExpense = async (req, res) => {
   try {
-    const { name, description, category, amount, date, responsiblePerson, notes } = req.body;
+    const { name, description, category, amount, date, responsiblePerson,phone, notes } = req.body;
 
     if (!name || !category || !amount) {
       return res.status(400).json({ message: 'Name, Category, Amount, and Date are required.' });
@@ -19,6 +19,7 @@ const addExpense = async (req, res) => {
       amount,
       date,
       responsiblePerson,
+      phone,
       notes
     });
 
@@ -62,4 +63,23 @@ const deleteExpense = async (req, res) => {
   }
 };
 
-export { addExpense, updateExpense, deleteExpense };
+
+const getAllExpenses = async (req, res) => {
+  try {
+    
+    const expenses = await Expense.find();
+
+    
+    if (!expenses) {
+      return res.status(404).json({ message: 'No expenses found' });
+    }
+
+    
+    res.status(200).json(expenses);
+  } catch (error) {
+    
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ message: 'Server error while fetching expenses' });
+  }
+};
+export { addExpense, updateExpense, deleteExpense, getAllExpenses };

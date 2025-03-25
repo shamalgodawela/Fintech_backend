@@ -27,6 +27,11 @@ const ExpensesSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    phone:{
+        type: String,
+        required: true
+
+    },
     notes: {
         type: String,
         trim: true
