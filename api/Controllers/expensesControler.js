@@ -47,6 +47,22 @@ const updateExpense = async (req, res) => {
   }
 };
 
+const getExpenseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const expense = await Expense.findById(id);
+
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+
+    res.json(expense);
+  } catch (error) {
+    console.error('Error fetching expense:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const deleteExpense = async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,4 +98,56 @@ const getAllExpenses = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching expenses' });
   }
 };
-export { addExpense, updateExpense, deleteExpense, getAllExpenses };
+
+
+const getMonthlyExpensesTotal = async (req, res) => {
+  try {
+    const monthlyTotal = await Expense.aggregate([
+      {
+        $project: {
+          month: { $month: "$date" },  // Extract the month from the date
+          year: { $year: "$date" },    // Extract the year from the date
+          amount: 1                   // Include the amount field
+        }
+      },
+      {
+        $group: {
+          _id: { year: "$year", month: "$month" }, // Group by year and month
+          totalAmount: { $sum: "$amount" }         // Calculate the total amount for each month
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 } // Sort by year and month
+      }
+    ]);
+
+    // Return the result as a JSON response
+    res.status(200).json(monthlyTotal);
+  } catch (err) {
+    console.error("Error calculating monthly expenses total:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getCategoryWiseExpenses = async (req, res) => {
+  try {
+    const categoryExpenses = await Expense.aggregate([
+      {
+        $group: {
+          _id: "$category", 
+          totalAmount: { $sum: "$amount" }, 
+        },
+      },
+      {
+        $sort: { totalAmount: -1 }, 
+      },
+    ]);
+
+    res.status(200).json(categoryExpenses);
+  } catch (err) {
+    console.error("Error fetching category-wise expenses:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export { addExpense, updateExpense, deleteExpense, getAllExpenses,getMonthlyExpensesTotal,getCategoryWiseExpenses,getExpenseById };

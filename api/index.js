@@ -1,7 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from "dotenv";
-import ExpensesRoute from './route/ExpensesRoute.js'
+import ExpensesRoute from './Route/ExpensesRoute.js';
+import budgetRoutes from './Route/budgetRoutes.js';
+import incomeRoutes from './Route/incomeRoutes.js';
 import cors from 'cors';
 
 
@@ -25,6 +27,8 @@ app.use(cookieParser());
 //route middleware
 
 app.use("/api/Expenses",ExpensesRoute);
+app.use("/api/budgets", budgetRoutes);
+app.use('/api/incomes', incomeRoutes);
 
 
 
